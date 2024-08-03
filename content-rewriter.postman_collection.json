@@ -1,0 +1,331 @@
+{
+	"info": {
+		"_postman_id": "bd2bcc20-626a-4f95-a457-341c58b6614a",
+		"name": "content-rewriter",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29235632",
+		"_collection_link": "https://bold-eclipse-904552.postman.co/workspace/Team-Workspace~5cf2bed3-416d-483e-8076-5c0458060f9a/collection/29235632-bd2bcc20-626a-4f95-a457-341c58b6614a?action=share&source=collection_link&creator=29235632"
+	},
+	"item": [
+		{
+			"name": "Plan",
+			"item": [
+				{
+					"name": "add-plan",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Credits\": 1000,\r\n    \"Type\": \"free\",\r\n    \"Months\":1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/plan"
+					},
+					"response": []
+				},
+				{
+					"name": "delete-specific-plan",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/plan/6669d50e0a3f8d8fb081cf4a"
+					},
+					"response": []
+				},
+				{
+					"name": "get-all-plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plan?page=1&limit=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plan"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-plan",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Months\":\"1\",\r\n    \"Credits\":\"1000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/plan/6669dba55a959d3c8ab52f51"
+					},
+					"response": []
+				}
+			],
+			"description": "Plan Collection  \n1- you can add any number of plans u want  \n2- body:{  \n_id: generated be default with mongoose\n\nCredits: number of provided words \\[\"1000\",\"100000\",\"1000000\"\\]\n\nUsers: array od strings of objectId (users ids) auto add\n\nType:\"free\" || \"silver\" || \"gold\"\n\nMonths: number of month available\n\nAddedBy: ----- auto add\n\n}\n\n---\n\nreq example =>  \n  \n{\n\nCredits:1000,\n\nType:\"free\",\n\nMonths:1\n\n}"
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "sign-up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\":\"youssif@gmail.com\",\r\n    \"Password\":\"Youssif@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/user/signup"
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\":\"youssif@gmail.com\",\r\n    \"Password\":\"Youssif@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/user/login"
+					},
+					"response": []
+				},
+				{
+					"name": "delete-my-account",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjlhNTFjMGMzYTMxMTIxY2JhMWY3MSIsIlBsYW5JZCI6IjY2Njk4NzYwNjBkNzU3ZWE0ZjQxODFmYiIsIkV4cGlyeURhdGUiOiIyMDI0LTA3LTEyVDEzOjM5OjQwLjA0MloiLCJVc2FnZSI6MTAwMCwiaWF0IjoxNzE4MTk5NjI4LCJleHAiOjE3MTgyODYwMjh9.xpyugqBMvZqqSMkrhsa0fl69FHZVkM6GLZSy3hw1fC0",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/user"
+					},
+					"response": []
+				},
+				{
+					"name": "get-my-data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjlhN2E1MTkxMGE0MWEyOGQ4OGUzOSIsIlBsYW5JZCI6IjY2Njk4NzYwNjBkNzU3ZWE0ZjQxODFmYiIsIkV4cGlyeURhdGUiOiIyMDI0LTA3LTEyVDEzOjUwOjI5LjYxNVoiLCJVc2FnZSI6MTAwMCwiaWF0IjoxNzE4MjAwMjM0LCJleHAiOjE3MTgyODY2MzR9.1zHBoOudMjktH9jpb9h4V3Q0k7rbC8GzjFaoJjg_eiU",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/user"
+					},
+					"response": []
+				},
+				{
+					"name": "update-my-acccount-data",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjlhN2E1MTkxMGE0MWEyOGQ4OGUzOSIsIlBsYW5JZCI6IjY2Njk4NzA0NjBkNzU3ZWE0ZjQxODFmMiIsIkV4cGlyeURhdGUiOiIyMDI0LTA3LTEyVDEzOjUwOjI5LjYxNVoiLCJVc2FnZSI6MTAwMCwiTmFtZSI6IllvdXNzaWYiLCJpYXQiOjE3MTgyMDE4OTUsImV4cCI6MTcxODI4ODI5NX0.Ft-h-FVQi32l3-5-aEuRALZ85O6fdl9G7b6fl21BnU0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\":\"youssif@gmail.com\",\r\n    \"Name\":\"Youssif\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/user"
+					},
+					"response": []
+				},
+				{
+					"name": "update-plan",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjliMWQ5YWI3MmMxZGRmMjJhOTJjMiIsIlBsYW5JZCI6IjY2Njk4NzA0NjBkNzU3ZWE0ZjQxODFmMiIsIkV4cGlyeURhdGUiOiIyMDI0LTA3LTEyVDE0OjM0OjAxLjUwOVoiLCJVc2FnZSI6MTAwMCwiaWF0IjoxNzE4MjA5NDUzLCJleHAiOjE3MTgyOTU4NTN9.fbFA7l5KrY88c35hlIJyZSiGhhWnvuhc9H4ur_k9zg4",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/user/plan/6669874160d757ea4f4181f7"
+					},
+					"response": []
+				},
+				{
+					"name": "get-all-users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/user/all"
+					},
+					"response": []
+				}
+			],
+			"description": "User collection contain the user data which is EMail and password while signup using our system ore OAuth meta data.\n\nexample =>{\n\nEmail:\"youssif@gamil.com\",\n\nPassword:\"Youssif@123\"\n\n}"
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "add-admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjllNTkxYTE1NWQ0MzIxNDQzZjQ0ZCIsIlJvbGUiOiJzdXBlcl9hZG1pbiIsIk5hbWUiOiJZb3Vzc2lmIiwiaWF0IjoxNzE4MjE2NDI1LCJleHAiOjE3MTgzMDI4MjV9.ULr9lkE9VjfnT2EpWSlhsXugKgFqRF7riPUaqboask8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\":\"Youssif\",\r\n    \"Email\":\"youssif@gmail.com\",\r\n    \"Role\":\"super_admin\",\r\n    \"Password\":\"Youssif@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/addAdmin"
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\":\"youssif@gmail.com\",\r\n    \"Password\":\"Youssif@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/login"
+					},
+					"response": []
+				},
+				{
+					"name": "update-admin",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjllNTkxYTE1NWQ0MzIxNDQzZjQ0ZCIsIlJvbGUiOiJzdXBlcl9hZG1pbiIsIk5hbWUiOiJZb3Vzc2lmIiwiaWF0IjoxNzE4MjE2NDI1LCJleHAiOjE3MTgzMDI4MjV9.ULr9lkE9VjfnT2EpWSlhsXugKgFqRF7riPUaqboask8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\":\"admin0001\",\r\n    \"Email\":\"admin0001@gmail.com\",\r\n    \"Password\":\"Admin0001@000254777747272727\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/6669ef203bad00867072a09f"
+					},
+					"response": []
+				},
+				{
+					"name": "delete-admin",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJ5b3Vzc2lmQGdtYWlsLmNvbSIsIl9pZCI6IjY2NjllNTkxYTE1NWQ0MzIxNDQzZjQ0ZCIsIlJvbGUiOiJzdXBlcl9hZG1pbiIsIk5hbWUiOiJZb3Vzc2lmIiwiaWF0IjoxNzE4MjE2NDI1LCJleHAiOjE3MTgzMDI4MjV9.ULr9lkE9VjfnT2EpWSlhsXugKgFqRF7riPUaqboask8",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/admin/6669ef203bad00867072a09f"
+					},
+					"response": []
+				}
+			],
+			"description": "Admin collection contain ononly one super admin"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://content-rewriter.onrender.com/api/v1",
+			"type": "string"
+		}
+	]
+}
