@@ -1,21 +1,49 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Link, IconButton, useDisclosure, useColorModeValue, Drawer, DrawerContent, DrawerCloseButton, DrawerBody, VStack, HStack, Icon, Text, Spacer, Button, Flex } from '@chakra-ui/react';
 import { IoMenu } from 'react-icons/io5';
 import { FaClipboardList, FaSignOutAlt, FaUserCog, FaUsers } from 'react-icons/fa';
-import { useLocation, Link as RouterLink, Outlet } from 'react-router-dom';
+import { useLocation, Link as RouterLink, Outlet, useNavigate } from 'react-router-dom';
+import CookiesService from '../services/CookiesService';
+import { useAppDispatch } from '../store/hooks';
+import { logout, setData } from '../features/authSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 const Layout: React.FC = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
+	const token = CookiesService.get("authToken");
     const btnRef = React.useRef<HTMLButtonElement>(null);
+ 	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
+	const { data } = useSelector((state: RootState) => state.auth);
 
     const sidebarColor = useColorModeValue('white', 'gray.800');
+
     const linkItems = [
         { href: '/crd', label: 'Admins', icon: FaUserCog },
         { href: '/crd/users', label: 'Users', icon: FaUsers },
         { href: '/crd/plans', label: 'Plans', icon: FaClipboardList },
     ];
+
+	useEffect(()=>{
+		if (!token) {
+			navigate('/login');
+		}
+	}, [navigate, token])
+
+	useEffect(()=>{
+		if (!Object.keys(data || {}).length) {
+			dispatch(setData(token));
+		}
+	}, [data, dispatch, token])
+
     const location = useLocation()
-    console.log(location)
+
+	const handleLogout = () => {
+		dispatch(logout());
+		navigate('/login');
+	}
+
     return (
         <Box minH="100vh" position="relative">
             <Flex w={'100%'} justifyContent={'space-between'} alignItems={'center'} position="relative" p="4">
@@ -34,7 +62,7 @@ const Layout: React.FC = () => {
                 />
                 <Flex wrap={'nowrap'} gap={1} justifyContent={'center'} alignItems={'center'}>
                     <Text fontSize={'md'}> Welcome </Text>
-                    <Text fontSize={'lg'} fontWeight={'600'} color={'brand.primary'} textDecoration={'underline'} textDecorationColor={'brand.primary'}>Taha</Text>
+                    <Text fontSize={'lg'} fontWeight={'600'} color={'brand.primary'} textDecoration={'underline'} textDecorationColor={'brand.primary'}>{data.Name}</Text>
                 </Flex>
             </Flex>
 
@@ -77,6 +105,7 @@ const Layout: React.FC = () => {
                             bg={'white'}
                             _hover={{ bg: 'blue.600', color: 'white', transform: 'auto', scale: 1.05, shadow: 'md' }}
                             mb={4}
+							onClick={handleLogout}
                         >
                             Logout
                         </Button>

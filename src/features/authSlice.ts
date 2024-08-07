@@ -1,25 +1,56 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Api from "../Api";
 import CookiesService from "../services/CookiesService";
+import { jwtDecode } from "jwt-decode";
+export type User = {
+  userEmail: string;
+  _id: string;
+  Role: "super_admin" | "admin" | "user"; // Adjust roles as needed
+  Name: string;
+  iat: number;
+  exp: number;
+};
 
 export interface AuthState {
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  data: Partial<User>;
+  // originalData: User[] | null;
 }
 
 const initialState: AuthState = {
   token: CookiesService.get("authToken") as string | null,
   status: "idle",
   error: null,
+ 
+  data: {},
 };
+
 export const login = createAsyncThunk(
   "auth/login",
-  async (userData: { email: string; password: string }) => {
-    const response = await Api.post("/user/login", userData);
-    return response.data; 
+  async (
+    userData: { Email: string; Password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await Api.post("/admin/login", userData);
+      console.log("[DEBUG] response: ", response);
+
+      return response.data;
+    } catch (error: any) {
+      console.error("[ERROR] login failed: ", error);
+
+      if (error?.response?.data) {
+        return rejectWithValue(error.response.data);
+      }
+
+      return rejectWithValue("An unexpected error occurred.");
+    }
   }
 );
+ 
+
 
 const authSlice = createSlice({
   name: "auth",
@@ -28,6 +59,10 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null;
       CookiesService.remove("authToken");
+    },
+    setData: (state, action) => {
+      state.data = jwtDecode(action.payload);
+      state.token = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -39,14 +74,17 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.token = action.payload.token;
         CookiesService.set("authToken", action.payload.token, { path: "/" });
+        state.data = jwtDecode(action.payload.token);
+        state.originalData = action.payload.data;
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message ?? "Failed to login";
-      });
+      })
+      
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setData } = authSlice.actions;
 
-export default authSlice.reducer;
+export default authSlice.reducer; 
