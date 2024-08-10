@@ -10,9 +10,9 @@ const UserHistory = React.lazy(() => import('./pages/UserHistory'));
 const Plans = React.lazy(() => import('./pages/Plans'));
 
 
-const LoadingSpinner = () => {
+export const LoadingSpinner = () => {
     return (
-        <Center h="100vh" bg={'white'}>
+        <Center position={'absolute'} top={'0'} left={'0'} h="100svh" w={'100svw'} bg={'white'}>
             <VStack spacing={4}>
                 <Spinner size="xl" color="blue.500" thickness="4px" speed="0.65s" />
                 <Text fontSize="lg" fontWeight="bold">

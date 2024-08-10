@@ -17,8 +17,8 @@ import AddPlanModal from "../components/Modals/AddPlanModal";
 
 interface PageHeaderProps {
   pageName: string;
-  onPrimarySearch: (searchTerm: string) => Promise<void>;
-  onSecondarySearch: (secondarySearchTerm: string) => Promise<void>;
+  onPrimarySearch: (searchTerm: string) => void;
+  onSecondarySearch: (searchTerm: string) => void;
   onOpenModal?: () => void;
   button: boolean;
   onAdminAdded?: () => void;
@@ -47,15 +47,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     },
     []
   );
-
   const handleSecondarySearchChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSecondarySearchTerm(event.target.value);
-      if (secondarySearchTerm.trim()) {
-        onSecondarySearch(secondarySearchTerm.trim());
+      const value = event.target.value;
+      setSecondarySearchTerm(value);
+      if (value.trim()) {
+        onSecondarySearch(value.trim());
+      } else {
+        onSecondarySearch("");
       }
     },
-    [onSecondarySearch, secondarySearchTerm]
+    [onSecondarySearch]
   );
 
   const handlePrimarySearch = useCallback(() => {
@@ -103,11 +105,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </Text>
         <Box width="260px">
           <InputGroup
+            display={pageName === "plans" ? "none" : "block"}
             size="md"
             borderRadius="lg"
             border="3px solid"
             borderColor="brand.primary"
-            overflow={'hidden'}
+            overflow={"hidden"}
           >
             <Input
               outline="none"
@@ -125,14 +128,19 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               _hover={{ border: "none" }}
             />
             <InputRightElement width="5rem">
-              <Flex h={'100%'} w={"100%"} alignItems={'flex-end'} justifyItems={'flex-start'}>
-                <Box h={'100%'} w={'50%'} >
+              <Flex
+                h={"100%"}
+                w={"100%"}
+                alignItems={"flex-end"}
+                justifyItems={"flex-start"}
+              >
+                <Box h={"100%"} w={"50%"}>
                   <IconButton
                     h="100%"
                     size="md"
                     w="100%"
-                    opacity={primarySearchTerm ? '1' : '0'}
-                    display={primarySearchTerm ? 'flex' : 'none'}
+                    opacity={primarySearchTerm ? "1" : "0"}
+                    display={primarySearchTerm ? "flex" : "none"}
                     onClick={handleClearPrimarySearch}
                     aria-label="Clear"
                     icon={<IoMdClose size={22} />}
@@ -144,11 +152,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   />
                 </Box>
 
-
                 <IconButton
                   h="100%"
                   size="md"
-                  w={'50%'}
+                  w={"50%"}
                   onClick={handlePrimarySearch}
                   aria-label="Search"
                   icon={<IoIosSearch size={22} />}
@@ -159,7 +166,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   borderLeftRadius="none"
                 />
               </Flex>
-
             </InputRightElement>
           </InputGroup>
         </Box>
@@ -177,8 +183,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             <Input
               type="text"
               placeholder="Search..."
-              value={secondarySearchTerm}
               onChange={handleSecondarySearchChange}
+              value={secondarySearchTerm}
               bg="white"
               borderRadius="md"
             />

@@ -5,7 +5,7 @@ import { Admin } from "../components/Admins/Admins";
 
 export interface AdminState {
   adminArr: Admin[];
-  originalAdminArr: Admin[]; // To store the original admin array
+  originalAdminArr: Admin[]; 
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -74,10 +74,10 @@ const adminSlice = createSlice({
       })
       .addCase(deleteAdmin.fulfilled, (state, action) => {
         state.adminArr = state.adminArr.filter(
-          (admin) => admin._id !== action.payload
+          (admin: { _id: string; }) => admin._id !== action.payload
         );
         state.originalAdminArr = state.originalAdminArr.filter(
-          (admin) => admin._id !== action.payload
+          (admin: { _id: string; }) => admin._id !== action.payload
         );
       })
       .addCase(deleteAdmin.rejected, (state, action) => {

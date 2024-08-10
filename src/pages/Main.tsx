@@ -139,11 +139,6 @@ export default function AdminsMain() {
         onAdminAdded={handleAdminAdded}
         modalType="admin"
         onOpenModal={handleOpenModal}
-        //  onPrimarySearch={function (searchTerm: string): Promise<void> {
-        //   throw new Error("Function not implemented.");
-        // } } onSecondarySearch={function (secondarySearchTerm: string): Promise<void> {
-        //   throw new Error("Function not implemented.");
-        // } }     
          />
       <DataTable
         className={"mt-5"}

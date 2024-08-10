@@ -1,106 +1,119 @@
-// slices/usersSlice.ts
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-interface User {
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import Api from "../Api";
+
+export interface User {
   _id: string;
-  Name: string;
   Email: string;
-  Role: string;
   Password: string;
+  Usage: number;
+  OAuthId: string;
+  PlanHistory: Array<{
+    PlanId: string;
+    Date: string;
+  }>;
+  ExpiryDate: string;
+  Confirmed: boolean;
+  PlanId: {
+    _id: string;
+    Credits: number;
+    Users: string[];
+    Type: string;
+    Months: number;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
-interface UserState {
-  data: User[];
+export interface UserState {
+  userArr: User[];
   originalData: User[];
-  status: "idle" | "loading" | "succeeded" | "failed";
+  loading: boolean;
   error: string | null;
 }
 
 const initialState: UserState = {
-  data: [
-    {
-      _id: "66a4ee9f0e465f31c50e37ab",
-      Name: "Youssif Salama",
-      Email: "admin@gmail.com",
-      Role: "super_admin",
-      Password: "$2b$10$firUIJMEQYRnPMa.pRjROuK6QND0RkpLuyGoXOsT1ZtXgq73t5m0a",
-      createdAt: "2024-07-27T12:57:03.937Z",
-      updatedAt: "2024-07-27T12:57:03.937Z",
-      __v: 0,
-    },
-    {
-      _id: "66aa6229f0cd0c2242a1b4ef",
-      Name: "admin1",
-      Email: "admin1@gmail.com",
-      Role: "admin",
-      Password: "$2b$10$q1VDuc9gj/rl.2cFWt6AqeTGr0LFuhZfY1M6HJfPO8JHtP8A6ISQa",
-      createdAt: "2024-07-31T16:11:21.632Z",
-      updatedAt: "2024-07-31T16:11:21.632Z",
-      __v: 0,
-    },
-  ],
-  originalData: [
-    {
-      _id: "66a4ee9f0e465f31c50e37ab",
-      Name: "Youssif Salama",
-      Email: "admin@gmail.com",
-      Role: "super_admin",
-      Password: "$2b$10$firUIJMEQYRnPMa.pRjROuK6QND0RkpLuyGoXOsT1ZtXgq73t5m0a",
-      createdAt: "2024-07-27T12:57:03.937Z",
-      updatedAt: "2024-07-27T12:57:03.937Z",
-      __v: 0,
-    },
-    {
-      _id: "66aa6229f0cd0c2242a1b4ef",
-      Name: "admin1",
-      Email: "admin1@gmail.com",
-      Role: "admin",
-      Password: "$2b$10$q1VDuc9gj/rl.2cFWt6AqeTGr0LFuhZfY1M6HJfPO8JHtP8A6ISQa",
-      createdAt: "2024-07-31T16:11:21.632Z",
-      updatedAt: "2024-07-31T16:11:21.632Z",
-      __v: 0,
-    },
-  ],
-  status: "idle",
+  userArr: [],
+  originalData: [],
+  loading: false,
   error: null,
 };
 
-export const fetchUsers = createAsyncThunk(
-  "users/fetchUsers",
-  async (searchTerm: string) => {
-    const response = await searchUsers(searchTerm);
-    return response;
+export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
+  try {
+    const res = await Api.get("/user/all");
+    return res.data.data as User[];
+  } catch (error) {
+    console.error("[ERROR] login failed: ", error);
+  }
+});
+
+export const usersFastSearch = createAsyncThunk(
+  "user/usersFastSearch",
+  async (search: string, { rejectWithValue }) => {
+   
+    try {
+      const response = await Api.get(`/user/${search}`);
+      return response.data.data as User[];
+    } catch (error: any) {
+      if (error?.response?.data) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue("An unexpected error occurred.");
+    }
   }
 );
 
-const usersSlice = createSlice({
+const userSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    resetUsers: (state) => {
-      state.data = state.originalData;
+    filterUsers: (state, action: PayloadAction<string>) => {
+      const searchTerm = action.payload.toLowerCase();
+      state.userArr = state.originalData.filter(
+        (user) =>
+          user.Email.toLowerCase().includes(searchTerm) ||
+          user.PlanId.Type.toLowerCase().includes(searchTerm)
+      );
+    },
+    resetFilter: (state) => {
+      state.userArr = state.originalData;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
-        state.status = "loading";
+        state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchUsers.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.data = action.payload;
+      .addCase(fetchUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
+        state.loading = false;
+        state.userArr = action.payload;
+        state.originalData = action.payload;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || null;
+        state.loading = false;
+        state.error = action.error.message ?? "Failed to fetch users";
+      })
+      .addCase(usersFastSearch.pending, (state) => {
+        // state.loading = true;
+        state.error = null;
+      })
+      .addCase(usersFastSearch.fulfilled, (state, action) => {
+        // state.loading = false;
+        if (action.payload) {
+          state.userArr = action.payload;
+        }
+      })
+      .addCase(usersFastSearch.rejected, (state, action) => {
+        // state.loading = false;
+        state.error = action.error.message ?? "Failed to search admin";
       });
   },
 });
 
-export const { resetUsers } = usersSlice.actions;
-export default usersSlice.reducer;
-
-// slices/historySlice.ts and slices/plansSlice.ts would be similar,
-// just with different initial states and API calls
+export const { filterUsers, resetFilter } = userSlice.actions;
+export default userSlice.reducer;
