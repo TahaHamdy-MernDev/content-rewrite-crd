@@ -4,8 +4,14 @@ import DataTable, { ExpanderComponentProps } from "react-data-table-component";
 import { useEffect } from "react";
 import Api from "../Api";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchUsers, filterUsers, resetFilter,usersFastSearch } from "../features/usersSlice";
+import {
+  fetchUsers,
+  filterUsers,
+  resetFilter,
+  usersFastSearch,
+} from "../features/usersSlice";
 import { LoadingSpinner } from "../routes";
+import { useNavigate } from "react-router-dom";
 
 export interface User {
   _id: string;
@@ -87,6 +93,7 @@ export default function UsersMain() {
   const dispatch = useAppDispatch();
   const { userArr, loading, error } = useAppSelector((state) => state.users);
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -111,7 +118,6 @@ export default function UsersMain() {
   };
 
   const handlePrimarySearch = (searchTerm: string) => {
-    
     if (searchTerm.trim() === "") {
       dispatch(resetFilter());
     } else {
@@ -120,7 +126,7 @@ export default function UsersMain() {
   };
 
   const handleSecondarySearch = (secondarySearchTerm: string) => {
-    console.log(secondarySearchTerm)
+    console.log(secondarySearchTerm);
     if (secondarySearchTerm.trim() === "") {
       dispatch(resetFilter());
     } else {
@@ -130,7 +136,6 @@ export default function UsersMain() {
 
   if (loading) return <LoadingSpinner />;
   if (error) return <div>Error: {error}</div>;
-
   const columns = [
     {
       name: "ID",
@@ -165,8 +170,20 @@ export default function UsersMain() {
             className="cursor-pointer bg-red-500 text-[#fff] p-1 rounded-lg px-2"
             onClick={() => handleDeleteUser(row)}
           >
-            <i className="fas fa-trash "></i>
             <span className="mx-1">delete</span>
+          </div>
+        );
+      },
+    },
+    {
+      name: "History",
+      cell: (row: User) => {
+        return (
+          <div
+            className="cursor-pointer bg-green-500 text-[#fff] p-1 rounded-lg px-2"
+            onClick={() => navigate(`/crd/user-history/${row._id}`)}
+          >
+            <span className="mx-1">show</span>
           </div>
         );
       },

@@ -27,10 +27,21 @@ export interface User {
   updatedAt: string;
   __v: number;
 }
+export interface UserHistoryItem {
+  _id: string;
+  OriginalPost: string;
+  GeneratedPost: string;
+  FeedBacked: boolean;
+  UserId: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
 export interface UserState {
   userArr: User[];
   originalData: User[];
+  userHistory: UserHistoryItem[];
   loading: boolean;
   error: string | null;
 }
@@ -38,6 +49,7 @@ export interface UserState {
 const initialState: UserState = {
   userArr: [],
   originalData: [],
+  userHistory: [],
   loading: false,
   error: null,
 };
@@ -45,7 +57,7 @@ const initialState: UserState = {
 export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
   try {
     const res = await Api.get("/user/all");
-    return res.data.data as User[];
+    return res.data.data;
   } catch (error) {
     console.error("[ERROR] login failed: ", error);
   }
@@ -54,10 +66,23 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
 export const usersFastSearch = createAsyncThunk(
   "user/usersFastSearch",
   async (search: string, { rejectWithValue }) => {
-   
     try {
       const response = await Api.get(`/user/${search}`);
-      return response.data.data as User[];
+      return response.data.data;
+    } catch (error: any) {
+      if (error?.response?.data) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue("An unexpected error occurred.");
+    }
+  }
+);
+export const getUserHistory = createAsyncThunk(
+  "user/get-user/:id",
+  async (id: string|undefined, { rejectWithValue }) => {
+    try {
+      const { data } = await Api.get(`/user/history/${id}`);
+      return data.data;
     } catch (error: any) {
       if (error?.response?.data) {
         return rejectWithValue(error.response.data);
@@ -89,7 +114,7 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
+      .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
         state.userArr = action.payload;
         state.originalData = action.payload;
@@ -99,18 +124,30 @@ const userSlice = createSlice({
         state.error = action.error.message ?? "Failed to fetch users";
       })
       .addCase(usersFastSearch.pending, (state) => {
-        // state.loading = true;
         state.error = null;
       })
       .addCase(usersFastSearch.fulfilled, (state, action) => {
-        // state.loading = false;
         if (action.payload) {
           state.userArr = action.payload;
         }
       })
       .addCase(usersFastSearch.rejected, (state, action) => {
-        // state.loading = false;
         state.error = action.error.message ?? "Failed to search admin";
+      })
+      .addCase(getUserHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserHistory.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.loading = false;
+          state.userHistory = action.payload;
+          state.error = null;
+        }
+      })
+      .addCase(getUserHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? "Failed to get user history";
       });
   },
 });

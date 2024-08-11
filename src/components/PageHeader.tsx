@@ -94,7 +94,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     onOpenModal && onOpenModal();
     onOpen();
   };
-
+const isHidden = pageName=== "plans"||"User History"
   return (
     <Box>
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -105,7 +105,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </Text>
         <Box width="260px">
           <InputGroup
-            display={pageName === "plans" ? "none" : "block"}
+            display={isHidden ? "none" : "block"}
             size="md"
             borderRadius="lg"
             border="3px solid"
