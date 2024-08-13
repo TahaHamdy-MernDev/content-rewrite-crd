@@ -94,7 +94,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     onOpenModal && onOpenModal();
     onOpen();
   };
-const isHidden = pageName=== "plans"||"User History"
+  const isHidden = pageName === "plans" || pageName === "User History";
+
   return (
     <Box>
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
