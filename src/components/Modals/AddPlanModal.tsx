@@ -17,14 +17,17 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import Api from "../../Api";
-import "./AddPlanModal.css";
+import './AddPlanModal.css';
 
 interface AddPlanModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddPlanModal: React.FC<AddPlanModalProps> = ({ isOpen, onClose }) => {
+const AddPlanModal: React.FC<AddPlanModalProps> = ({
+  isOpen,
+  onClose
+}) => {
   const [credits, setCredits] = useState<string>("");
   const [type, setType] = useState<string>("free");
   const [months, setMonths] = useState<number>(1);

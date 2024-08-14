@@ -7,39 +7,53 @@ import {
     FormControl,
     FormLabel,
     FormErrorMessage,
-    useColorModeValue, useToast
+    useColorModeValue,
+    useToast
 } from '@chakra-ui/react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { login } from '../../features/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { useNavigate } from 'react-router-dom';
+import { ErrorResponse } from '../../interfaces/Errors';
+
 interface FormValues {
     Email: string;
     Password: string;
 }
+
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
-    const toast = useToast()
+    const toast = useToast();
     const dispatch = useAppDispatch();
     const formBgColor = useColorModeValue('white', 'gray.700');
     const authStatus = useAppSelector((state) => state.auth.status);
-	const navigate = useNavigate();
-
+    const navigate = useNavigate();
 
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
-        console.log(data)
-        console.log(authStatus)
-        await dispatch(login(data)).unwrap().then((res) => {
-            console.log(res)
-        });
-        toast({
-            status: 'success',
-            title: 'Login Successful',
-            description: 'You have successfully logged in.',
-        })
-        console.log(data); // Log form data
-		navigate('/crd');
+        try {
+            console.log(data);
+
+            const response = await dispatch(login(data)).unwrap();
+            console.log(response);
+
+            toast({
+                status: 'success',
+                title: 'Login Successful',
+                description: 'You have successfully logged in.',
+            });
+
+            console.log(data);
+            navigate('/crd');
+        } catch (err: unknown) {
+            const error = err as ErrorResponse;
+            console.error("[ERROR] onSubmit failed: ", error.message);
+            toast({
+                status: 'error',
+                title: 'Login Failed',
+                description: error.message || 'An unexpected error occurred.',
+            });
+        }
     };
 
     return (
@@ -69,17 +83,17 @@ export default function Login() {
                     spacing={8}
                     maxWidth="400px"
                     width="full"
-                    rounded={'md'}
-                    border={'1px'}
-                    borderColor={'rgb(226 232 240)'}
+                    rounded="md"
+                    border="1px"
+                    borderColor="rgb(226 232 240)"
                     p={8}
                     boxShadow="lg"
                 >
-                    <Flex width={'100%'} justifyContent={'start'}>
+                    <Flex width="100%" justifyContent="start">
                         <Heading size="lg">Login</Heading>
                     </Flex>
 
-                    <FormControl id="email" isInvalid={!!errors.email}>
+                    <FormControl id="email" isInvalid={!!errors.Email}>
                         <FormLabel>Email Address</FormLabel>
                         <Input
                             type="email"
@@ -89,16 +103,17 @@ export default function Login() {
                             {...register('Email', {
                                 required: 'Email is required',
                                 pattern: {
-                                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                                     message: 'Invalid email address',
                                 },
                             })}
                         />
                         <FormErrorMessage>
-                            {errors?.email?.message}
+                            {errors.Email && errors.Email.message}
                         </FormErrorMessage>
                     </FormControl>
-                    <FormControl id="password" isInvalid={!!errors.password}>
+
+                    <FormControl id="password" isInvalid={!!errors.Password}>
                         <FormLabel>Password</FormLabel>
                         <Input
                             type="password"
@@ -107,17 +122,28 @@ export default function Login() {
                             {...register('Password', {
                                 required: 'Password is required',
                                 minLength: {
-                                    value: 6,
-                                    message: 'Password must be at least 6 characters',
+                                    value: 8,
+                                    message: 'Password must be at least 8 characters',
+                                },
+                                pattern: {
+                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
                                 },
                             })}
                             autoComplete="current-password"
                         />
                         <FormErrorMessage>
-                            {errors?.password?.message}
+                            {errors.Password && errors.Password.message}
                         </FormErrorMessage>
                     </FormControl>
-                    <Button colorScheme="blue" width="full" size="lg" isLoading={authStatus === "loading"} type="submit">
+
+                    <Button
+                        colorScheme="blue"
+                        width="full"
+                        size="lg"
+                        isLoading={authStatus === "loading"}
+                        type="submit"
+                    >
                         Sign In
                     </Button>
                 </VStack>

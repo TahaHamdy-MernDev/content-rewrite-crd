@@ -29,13 +29,13 @@ const Layout: React.FC = () => {
 		if (!token) {
 			navigate('/login');
 		}
-	}, [token])
+	}, [navigate, token])
 
 	useEffect(()=>{
 		if (!Object.keys(data || {}).length) {
 			dispatch(setData(token));
 		}
-	}, [data])
+	}, [data, dispatch, token])
 
     const location = useLocation()
 

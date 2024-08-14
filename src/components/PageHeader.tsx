@@ -11,14 +11,14 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import { IoIosSearch } from "react-icons/io";
+import { IoIosSearch, IoMdClose } from "react-icons/io";
 import AddAdminModal from "../components/Modals/AddAdminModel";
 import AddPlanModal from "../components/Modals/AddPlanModal";
 
 interface PageHeaderProps {
   pageName: string;
-  onPrimarySearch: (searchTerm: string) => Promise<void>;
-  onSecondarySearch: (secondarySearchTerm: string) => Promise<void>;
+  onPrimarySearch: (searchTerm: string) => void;
+  onSecondarySearch: (searchTerm: string) => void;
   onOpenModal?: () => void;
   button: boolean;
   onAdminAdded?: () => void;
@@ -47,15 +47,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     },
     []
   );
-
   const handleSecondarySearchChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSecondarySearchTerm(event.target.value);
-      if (secondarySearchTerm.trim()) {
-        onSecondarySearch(secondarySearchTerm.trim());
+      const value = event.target.value;
+      setSecondarySearchTerm(value);
+      if (value.trim()) {
+        onSecondarySearch(value.trim());
+      } else {
+        onSecondarySearch("");
       }
     },
-    [onSecondarySearch, secondarySearchTerm]
+    [onSecondarySearch]
   );
 
   const handlePrimarySearch = useCallback(() => {
@@ -73,18 +75,26 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     [handlePrimarySearch]
   );
 
+  const handleClearPrimarySearch = () => {
+    setPrimarySearchTerm("");
+    onPrimarySearch("");
+  };
+
   const handleAdminAdded = () => {
     onAdminAdded && onAdminAdded();
     onClose();
   };
+
   const handlePlanAdded = () => {
     onPlanAdded && onPlanAdded();
     onClose();
   };
+
   const handleOpenModal = () => {
-	onOpenModal && onOpenModal();
-	onOpen();
-  } 
+    onOpenModal && onOpenModal();
+    onOpen();
+  };
+  const isHidden = pageName === "plans" || pageName === "User History";
 
   return (
     <Box>
@@ -96,10 +106,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </Text>
         <Box width="260px">
           <InputGroup
+            display={isHidden ? "none" : "block"}
             size="md"
             borderRadius="lg"
             border="3px solid"
             borderColor="brand.primary"
+            overflow={"hidden"}
           >
             <Input
               outline="none"
@@ -108,7 +120,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               placeholder="Fast Search "
               value={primarySearchTerm}
               pl={1}
-              type="search"
+              type="text"
               onChange={handlePrimarySearchChange}
               onKeyDown={handleKeyPress}
               borderRadius="md"
@@ -116,20 +128,45 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               _focusVisible={{ boxShadow: "none" }}
               _hover={{ border: "none" }}
             />
-            <InputRightElement width="2.5rem">
-              <IconButton
-                h="100%"
-                size="md"
-                w="100%"
-                onClick={handlePrimarySearch}
-                aria-label="Search"
-                icon={<IoIosSearch size={22} />}
-                bg="brand.primary"
-                color="white"
-                _hover={{ bg: "brand.primary", opacity: 0.8 }}
-                borderRightRadius="sm"
-                borderLeftRadius="none"
-              />
+            <InputRightElement width="5rem">
+              <Flex
+                h={"100%"}
+                w={"100%"}
+                alignItems={"flex-end"}
+                justifyItems={"flex-start"}
+              >
+                <Box h={"100%"} w={"50%"}>
+                  <IconButton
+                    h="100%"
+                    size="md"
+                    w="100%"
+                    opacity={primarySearchTerm ? "1" : "0"}
+                    display={primarySearchTerm ? "flex" : "none"}
+                    onClick={handleClearPrimarySearch}
+                    aria-label="Clear"
+                    icon={<IoMdClose size={22} />}
+                    bg="transparent"
+                    color="brand.primary"
+                    // _hover={{ bg: "transparent", opacity: primarySearchTerm ? '0.8' : '0' }}
+                    borderRightRadius="sm"
+                    borderLeftRadius="none"
+                  />
+                </Box>
+
+                <IconButton
+                  h="100%"
+                  size="md"
+                  w={"50%"}
+                  onClick={handlePrimarySearch}
+                  aria-label="Search"
+                  icon={<IoIosSearch size={22} />}
+                  bg="brand.primary"
+                  color="white"
+                  _hover={{ bg: "brand.primary", opacity: 0.8 }}
+                  borderRightRadius="sm"
+                  borderLeftRadius="none"
+                />
+              </Flex>
             </InputRightElement>
           </InputGroup>
         </Box>
@@ -138,30 +175,38 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         justifyContent="space-between"
         alignItems="center"
         bg="brand.primary"
-        p={3}
+        p={1.5}
         borderRadius="md"
         mt={4}
       >
-        <Box width="260px">
+        <Box width="270px">
           <InputGroup size="md">
             <Input
-              type="search"
+              type="text"
               placeholder="Search..."
-              value={secondarySearchTerm}
               onChange={handleSecondarySearchChange}
+              value={secondarySearchTerm}
               bg="white"
               borderRadius="md"
             />
           </InputGroup>
         </Box>
         {button && (
-          <Button onClick={handleOpenModal} colorScheme="whiteAlpha" variant="solid">
+          <Button
+            onClick={handleOpenModal}
+            colorScheme="whiteAlpha"
+            variant="solid"
+          >
             Add
           </Button>
         )}
       </Flex>
-      {modalType === "admin" && <AddAdminModal isOpen={isOpen} onClose={handleAdminAdded} />}
-      {modalType === "plan" && <AddPlanModal isOpen={isOpen} onClose={handlePlanAdded} />}
+      {modalType === "admin" && (
+        <AddAdminModal isOpen={isOpen} onClose={handleAdminAdded} />
+      )}
+      {modalType === "plan" && (
+        <AddPlanModal isOpen={isOpen} onClose={handlePlanAdded} />
+      )}
     </Box>
   );
 };
