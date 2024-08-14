@@ -1,26 +1,39 @@
 import { Box } from "@chakra-ui/react";
 import PageHeader from "../components/PageHeader";
+import Admins from "../components/Admins/Admins";
+import { useState } from "react";
 
-export default function Main() {
-  const handleSearch = async (searchTerm: string) => {
-    // Implement your search logic here
-    console.log('Searching for:', searchTerm);
-    // You might want to call an API or update some state based on the search term
+export default function AdminsMain() {
+  const [refreshFlag, setRefreshFlag] = useState(false);
+
+  const handlePrimarySearch = async (searchTerm: string) => {
+    console.log("Primary search term:", searchTerm);
+  };
+
+  const handleSecondarySearch = async (secondarySearchTerm: string) => {
+    console.log("Secondary search term:", secondarySearchTerm);
+  };
+
+  const handleAdminAdded = () => {
+    setRefreshFlag((prev) => !prev);
+  };
+  
+  const handleOpenModal = () => {
+   	console.log("[Admin Modal Open]");
   };
 
   return (
     <Box>
       <PageHeader
-        pageName="Users" onSearch={handleSearch}
-      // fetchAction={fetchUsers}
-      // resetAction={resetUsers}
+        pageName="admins"
+        onPrimarySearch={handlePrimarySearch}
+        onSecondarySearch={handleSecondarySearch}
+        button={true}
+        onAdminAdded={handleAdminAdded}
+        modalType="admin"
+		onOpenModal={handleOpenModal}
       />
-      {status === 'loading' && <div>Loading...</div>}
-      {/* {status === 'failed' && <div>Error: {error}</div>} */}
-      {/* {status === 'succeeded' && (
-        // React Table component would go here
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      )} */}
+      <Admins refreshFlag={refreshFlag} />
     </Box>
-  )
+  );
 }

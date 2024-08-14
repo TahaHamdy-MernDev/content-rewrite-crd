@@ -13,9 +13,10 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { login } from '../../features/authSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useNavigate } from 'react-router-dom';
 interface FormValues {
-    email: string;
-    password: string;
+    Email: string;
+    Password: string;
 }
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
@@ -23,6 +24,9 @@ export default function Login() {
     const dispatch = useAppDispatch();
     const formBgColor = useColorModeValue('white', 'gray.700');
     const authStatus = useAppSelector((state) => state.auth.status);
+	const navigate = useNavigate();
+
+
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
         console.log(data)
         console.log(authStatus)
@@ -35,6 +39,7 @@ export default function Login() {
             description: 'You have successfully logged in.',
         })
         console.log(data); // Log form data
+		navigate('/crd');
     };
 
     return (
@@ -81,7 +86,7 @@ export default function Login() {
                             placeholder="Enter your email"
                             autoComplete="username"
                             size="lg"
-                            {...register('email', {
+                            {...register('Email', {
                                 required: 'Email is required',
                                 pattern: {
                                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -99,7 +104,7 @@ export default function Login() {
                             type="password"
                             placeholder="Enter your password"
                             size="lg"
-                            {...register('password', {
+                            {...register('Password', {
                                 required: 'Password is required',
                                 minLength: {
                                     value: 6,
