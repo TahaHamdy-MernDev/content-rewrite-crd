@@ -12,6 +12,8 @@ import {
   resetFilter,
   searchPlans,
 } from "../features/planSlice";
+import Api from "../Api";
+import { anCustomStyle } from "./Users";
 
 
 export default function PlansMain() {
@@ -48,6 +50,7 @@ export default function PlansMain() {
   const handleDeletePlan = async ({ _id, Type }: Partial<Plan>) => {
     try {
       dispatch(deletePlan(_id));
+	  await Api.delete(`/plan/${_id}`);
       toast({
         status: "success",
         title: "Successful Deletion",
@@ -129,6 +132,7 @@ export default function PlansMain() {
         expandableRows
         expandableRowsComponent={ExpandableRow}
         progressPending={loading}
+		customStyles={anCustomStyle}
       />
     </Box>
   );

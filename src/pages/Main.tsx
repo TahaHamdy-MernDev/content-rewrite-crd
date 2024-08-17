@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { deleteAdmin, fastSearch, fetchAdmins } from "../features/adminSlice";
+import { anCustomStyle } from "./Users";
 
 export interface Admin {
   _id: string;
@@ -146,6 +147,7 @@ export default function AdminsMain() {
         paginationServer
         columns={columns}
         data={filteredAdmins}
+		customStyles={anCustomStyle}
       />
     </Box>
   );

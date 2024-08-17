@@ -1,7 +1,7 @@
-import { Box, useToast } from "@chakra-ui/react";
+import { Box, useToast, Button } from "@chakra-ui/react";
 import PageHeader from "../components/PageHeader";
 import DataTable, { ExpanderComponentProps } from "react-data-table-component";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Api from "../Api";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
@@ -12,7 +12,37 @@ import {
 } from "../features/usersSlice";
 import { LoadingSpinner } from "../routes";
 import { useNavigate } from "react-router-dom";
+import { useDisclosure } from "@chakra-ui/react";
+import UpdatePlanModal from "../components/Modals/UpdatePlanModal";
 
+export const customStyles = {
+  headCells: {
+    style: {
+      backgroundColor: "#3182ce",
+      color: "white",
+      fontWeight: "bold",
+      fontSize: "16px",
+    },
+  },
+};
+
+export const anCustomStyle = {
+  headRow: {
+    style: {
+      backgroundColor: "#3182ce", // Chakra UI blue 500 color
+      color: "white",
+      fontWeight: "bold",
+      fontSize: "16px",
+    },
+  },
+  rows: {
+    style: {
+      "&:nth-of-type(even)": {
+        backgroundColor: "#f5f5f5", // Light grey for alternate rows
+      },
+    },
+  },
+};
 export interface User {
   _id: string;
   Email: string;
@@ -45,6 +75,8 @@ export default function UsersMain() {
   const { userArr, loading, error } = useAppSelector((state) => state.users);
   const toast = useToast();
   const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -77,7 +109,6 @@ export default function UsersMain() {
   };
 
   const handleSecondarySearch = (secondarySearchTerm: string) => {
-    console.log(secondarySearchTerm);
     if (secondarySearchTerm.trim() === "") {
       dispatch(resetFilter());
     } else {
@@ -85,8 +116,14 @@ export default function UsersMain() {
     }
   };
 
+  const openUpdateModal = (userId: string) => {
+    setSelectedUserId(userId);
+    onOpen();
+  };
+
   if (loading) return <LoadingSpinner />;
   if (error) return <div>Error: {error}</div>;
+
   const columns = [
     {
       name: "ID",
@@ -162,11 +199,15 @@ export default function UsersMain() {
           {data?.PlanId?.Type}
         </p>
       </div>
-      <div className="update-plan mb-4 md:mb-0 md:w-1/3 flex flex-col">
+      <div className="update-plan mb-4 md:mb-0 md:w-1/3 flex flex-col justify-start items-center">
         <h2 className="plan-title font-bold text-green-400">Update Plan</h2>
-        <button className="bg-blue-400 hover:bg-blue-500 text-white rounded w-40">
+        <Button
+          colorScheme="blue"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => openUpdateModal(data._id)}
+        >
           Click to Choose Plan
-        </button>
+        </Button>
       </div>
       <div className="plan-history md:w-1/3">
         <h2 className="font-bold text-green-400">Plan History</h2>
@@ -214,7 +255,19 @@ export default function UsersMain() {
         data={userArr}
         expandableRows
         expandableRowsComponent={ExpandedComponent}
+        customStyles={anCustomStyle}
       />
+      {selectedUserId && (
+        <UpdatePlanModal
+          isOpen={isOpen}
+          onClose={onClose}
+          userId={selectedUserId}
+          onUpdate={() => {
+            onClose();
+            dispatch(fetchUsers());
+          }}
+        />
+      )}
     </Box>
   );
 }

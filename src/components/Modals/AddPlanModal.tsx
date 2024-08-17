@@ -71,6 +71,8 @@ const AddPlanModal: React.FC<AddPlanModalProps> = ({
 
       onClose();
     } catch (err: any) {
+		console.log(err);
+		
       toast({
         status: "error",
         title: "Error",

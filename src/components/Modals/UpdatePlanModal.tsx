@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -8,125 +7,112 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Select,
-  useToast,
 } from "@chakra-ui/react";
+import DataTable from "react-data-table-component";
+import { useState, useEffect } from "react";
 import Api from "../../Api";
-import "./AddPlanModal.css";
+import { customStyles } from "../../pages/Users";
 
-interface AddPlanModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface Plan {
+  _id: string;
+  Credits: number;
+  Type: string;
+  Months: number;
 }
 
-const AddPlanModal: React.FC<AddPlanModalProps> = ({ isOpen, onClose }) => {
-  const [credits, setCredits] = useState<string>("");
-  const [type, setType] = useState<string>("free");
-  const [months, setMonths] = useState<number>(1);
-  const toast = useToast();
+interface UpdatePlanModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+  onUpdate: () => void;
+}
+
+export default function UpdatePlanModal({
+  isOpen,
+  onClose,
+  userId,
+  onUpdate,
+}: UpdatePlanModalProps) {
+  const [plans, setPlans] = useState<Plan[]>([]);
 
   useEffect(() => {
-    switch (type) {
-      case "free":
-        setCredits("1000");
-        setMonths(1);
-        break;
-      case "silver":
-        setCredits("100000");
-        setMonths(1);
-        break;
-      case "gold":
-        setCredits("1000000");
-        setMonths(12);
-        break;
-      default:
-        setCredits("");
-        setMonths(1);
+    const fetchPlans = async () => {
+      const res = await Api.get("/plan");
+      setPlans(res.data.data);
+    };
+
+    if (isOpen) {
+      console.log("Plans", plans);
+
+      fetchPlans();
     }
-  }, [type]);
+  }, [isOpen]);
 
-  const handleAddPlan = async () => {
-    try {
-      const newPlan = {
-        Credits: parseInt(credits, 10),
-        Type: type,
-        Months: months,
-      };
-
-      await Api.post("/plan", newPlan);
-
-      toast({
-        status: "success",
-        title: "Plan Added",
-        description: "You have successfully added a new plan.",
-      });
-
-      onClose();
-    } catch (err: any) {
-      toast({
-        status: "error",
-        title: "Error",
-        description: err.message,
-      });
-    }
+  const handleChoosePlan = async (planId: string) => {
+    await Api.put("/user/plan", { PlanId: planId, UserId: userId });
+    onUpdate();
+    onClose();
   };
 
+  const columns = [
+    {
+      name: "ID",
+      selector: (row: Plan) => row._id,
+      sortable: true,
+    },
+    {
+      name: "Credits",
+      selector: (row: Plan) => row.Credits,
+      sortable: true,
+    },
+    {
+      name: "Months",
+      selector: (row: Plan) => row.Months,
+      sortable: true,
+    },
+    {
+      name: "Type",
+      selector: (row: Plan) => row.Type,
+      sortable: true,
+    },
+    {
+      name: "Actions",
+      cell: (row: Plan) => (
+        <Button colorScheme="blue" onClick={() => handleChoosePlan(row._id)}>
+          Choose
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Add New Plan</ModalHeader>
+      <ModalContent width={"auto"} maxWidth={"80%"}>
+        <ModalHeader>Choose a Plan</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <FormControl mb={4}>
-            <FormLabel>Type</FormLabel>
-            <Select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="free">Free</option>
-              <option value="silver">Silver</option>
-              <option value="gold">Gold</option>
-            </Select>
-          </FormControl>
-          <FormControl mb={4}>
-            <FormLabel>Credits</FormLabel>
-            <InputGroup>
-              <Input
-                type="text"
-                value={credits}
-                readOnly
-                placeholder="Credits will be set based on type"
-              />
-              <InputRightElement pointerEvents="none">
-                <span className="credit-suffix">words</span>
-              </InputRightElement>
-            </InputGroup>
-          </FormControl>
-          <FormControl mt={4}>
-            <FormLabel>Months</FormLabel>
-            <Input
-              type="number"
-              value={months}
-              readOnly
-              placeholder="Duration will be set based on type"
-              min={1}
-            />
-          </FormControl>
+          <DataTable
+            columns={columns}
+            data={plans}
+            pagination
+            paginationServer
+            customStyles={{
+              ...customStyles,
+              table: {
+                style: {
+                  width: "100%",
+                },
+              },
+            }}
+          />
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleAddPlan}>
-            Add Plan
-          </Button>
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
+          <Button colorScheme="blue" mr={3} onClick={onClose}>
+            Close
           </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
   );
-};
-
-export default AddPlanModal;
+}
